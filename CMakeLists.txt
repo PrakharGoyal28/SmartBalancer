@@ -11,6 +11,7 @@ add_executable(lb
     src/main.cpp
     src/listener.cpp
     src/session.cpp
+    src/server_pool.cpp
 )
 
 target_link_libraries(lb Boost::system pthread)

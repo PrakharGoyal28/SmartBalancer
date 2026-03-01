@@ -1,5 +1,6 @@
 #include "session.h"
 #include <iostream>
+#include "server_pool.h"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -9,10 +10,11 @@ using tcp = net::ip::tcp;
 http::request<http::string_body> req;
 http::response<http::string_body> res;
 
-Session::Session(tcp::socket socket)
+Session::Session(tcp::socket socket, ServerPool &pool)
     : client_socket_(std::move(socket)),
       backend_socket_(client_socket_.get_executor()),
-      resolver_(client_socket_.get_executor())
+      resolver_(client_socket_.get_executor()),
+      server_pool_(pool)
 {
 }
 
@@ -37,7 +39,10 @@ void Session::read_request()
 void Session::connect_backend()
 {
     auto self = shared_from_this();
-    resolver_.async_resolve("127.0.0.1", "9000",
+
+    BackendServer backend = server_pool_.get_next_server();
+
+    resolver_.async_resolve(backend.host, backend.port,
                             [self](beast::error_code ec, tcp::resolver::results_type results)
                             {
                                 if (!ec)
