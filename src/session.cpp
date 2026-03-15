@@ -41,6 +41,7 @@ void Session::connect_backend()
     auto self = shared_from_this();
 
     BackendServer backend = server_pool_.get_next_server();
+    current_backend_ = backend;
 
     resolver_.async_resolve(backend.host, backend.port,
                             [self](beast::error_code ec, tcp::resolver::results_type results)
@@ -53,6 +54,11 @@ void Session::connect_backend()
                                                            if (!ec)
                                                            {
                                                                self->forward_request();
+                                                           }
+                                                           else
+                                                           {
+                                                               std::cerr << "Backend connection failed\n";
+                                                               self->server_pool_.mark_server_dead(self->current_backend_.port);
                                                            }
                                                        });
                                 }

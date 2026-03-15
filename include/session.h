@@ -12,6 +12,7 @@ private:
     boost::asio::ip::tcp::resolver resolver_;
     boost::beast::flat_buffer buffer_;
     ServerPool &server_pool_;
+    BackendServer current_backend_;
 
 public:
     Session(boost::asio::ip::tcp::socket socket, ServerPool &pool);
