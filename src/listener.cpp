@@ -1,10 +1,12 @@
 #include "listener.h"
 #include "session.h"
+#include "metrics.h"
 
 Listener::Listener(boost::asio::io_context &io_context,
                    boost::asio::ip::tcp::endpoint endpoint,
-                   ServerPool &pool)
-    : acceptor_(io_context), socket_(io_context), server_pool_(pool)
+                   ServerPool &pool,
+                   Metrics &metrics)
+    : acceptor_(io_context), socket_(io_context), server_pool_(pool), metrics_(metrics)
 {
     acceptor_.open(endpoint.protocol());
     acceptor_.set_option(boost::asio::socket_base::reuse_address(true));
@@ -25,7 +27,7 @@ void Listener::do_accept()
                                if (!ec)
                                {
                                    std::make_shared<Session>(
-                                       std::move(self->socket_), self->server_pool_)
+                                       std::move(self->socket_), self->server_pool_, self->metrics_)
                                        ->run();
                                }
                                self->do_accept();

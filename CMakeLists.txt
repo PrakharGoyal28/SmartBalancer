@@ -12,6 +12,8 @@ add_executable(lb
     src/listener.cpp
     src/session.cpp
     src/server_pool.cpp
+    src/health_checker.cpp
+    src/metrics.cpp
 )
 
 target_link_libraries(lb Boost::system pthread)
